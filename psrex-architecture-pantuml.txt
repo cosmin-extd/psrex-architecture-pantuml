@@ -1,0 +1,61 @@
+PSO diagram
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+' uncomment the following line and comment the first to use locally
+' !include C4_Component.puml
+!include <tupadr3/common>
+!include <tupadr3/devicons/mysql>
+!include <C4/C4_Container>
+!include <logos/rabbitmq>
+
+LAYOUT_WITH_LEGEND()
+
+title Component Diagram for PSO
+Component_Ext(EHM, "EHM Service", "Fetch prescriptions")
+Component_Ext(NLLEHM, "NLL EHM Service", "Fetch prescriptions")
+Person(individual, "Individual buying drugs", "User individual requesting prescription page.")
+Person(individual2, "Pharmacy employee", "Pharmaceut or technician.")
+Container(customers, "Customers", "Customers", "Customers importing articles.")
+
+DEV_MYSQL(dbpso,PSO DB,database)
+DEV_MYSQL(dbpsrexarticles,PSREX Articles DB,database)
+
+queue "<$rabbitmq>" as rabbit
+queue "<$rabbitmq>" as rabbit2
+
+Container_Boundary(app2, "Pharma Suite") {
+Component(dotnetclient, ".NET Client", "C#", ".NET Client")
+Component(psrexarticles, "PSREX Articles", "Java module", "Stores article information.")
+Component(psrexserver, "PSREX Server", "Java module", "Manages expeditions of prescriptions, dose production and orders from eCommerce (PhOMS).")
+Rel(dotnetclient, psrexarticles, "Uses","SOAP API")
+Rel(individual2, dotnetclient, "Uses","UI Client")
+Rel(psrexarticles, dbpsrexarticles, "Uses","DB")
+Rel(psrexarticles, rabbit2, "Pulls article info","Queue")
+Rel(psrexserver, rabbit2, "Pushes article info","Queue")
+}
+
+Container_Boundary(app, "PSO Components") {
+Component(asab, "ASAB", "Java dependency", "Prescription and the base article id are fetched from EHM.")
+Component(nllehm, "NLL EHM", "Java dependency", "Patients and prescriptions are fetched from EHM.")
+Component(rcl, "PSO", "Java", "PSO")
+Component(rclCPP, "Web UI", "Java", "Web UI.")
+Component(importAPI, "Import API", "Java", "Import API.")
+Rel(asab, EHM, "Uses","API")
+Rel(nllehm, NLLEHM, "Uses","API")
+Rel(individual, rclCPP, "Uses","API")
+Rel(rcl, dbpso, "Uses","DB")
+Rel(rcl, rabbit, "Uses","Queue")
+Rel(rcl, asab, "Uses","dependency")
+Rel(rcl, nllehm, "Uses","dependency")
+Rel(customers, importAPI, "Uses","API")
+}
+
+Component(integrate, "Integration", "Java", "Integration for articles sync.")
+'Rel(integrate, dbpso, "Uses","DB")
+'Rel(integrate, dbpsrexarticles, "Uses","DB")
+
+@enduml
+Links
+https://www.planttext.com/
+https://confluence.extendaretail.com/pages/viewpage.action?pageId=90511888
+https://plantuml.com/stdlib
