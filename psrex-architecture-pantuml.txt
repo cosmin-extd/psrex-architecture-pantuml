@@ -28,13 +28,14 @@ Container_Boundary(app2, "Pharma Suite") {
    Component(dotnetclient, ".NET Client", "C#", ".NET Client")
    Container_Boundary(psrexarticles-container, "PSREX Articles") {
       Component(psrexarticles, "PSREX Articles Import", "Java module", "Stores article information.")
-      Component(search, "PSREX Articles Search", "Java module", "Stores article information.")
+      Component(articlesearch, "PSREX Articles Search", "Java module", "Stores article information.")
    }
-   Component(vara, "VARA Connect", "Java module", "VARA Connect.")
+   Component(vara, "VARA Connect", "Part of PSREX Server Java module", "VARA Connect.")
    Component(psrexserver, "PSREX Server", "Java module", "Manages expeditions of prescriptions, dose production and orders from eCommerce (PhOMS).")
    Rel(dotnetclient, psrexarticles, "Uses","SOAP API")
    Rel(individual2, dotnetclient, "Uses","UI Client")
    Rel(psrexarticles, dbpsrexarticles, "Uses","DB")
+   Rel(articlesearch, dbpsrexarticles, "Uses","DB")
    Rel(psrexarticles, rabbit2, "Pulls article info from Queue","C.4")
    Rel(psrexserver, rabbit2, "Pushes article info to Queue","C.3")
 }
@@ -62,7 +63,7 @@ Rel(vara, psoImportAPI, "Uses API","B.2")
 'Rel(integrate, dbpso, "Uses","DB")
 'Rel(integrate, dbpsrexarticles, "Uses","DB")
 Rel(varaehm, vara, "Uses API","C.1")
-Rel(vara, psrexserver, "Uses API","C.2")
+Rel(vara, psrexserver, "Is part of PSREX Server Java module","C.2")
 Rel(psrexarticles, integrate, "Uses API","C.5")
 
 
