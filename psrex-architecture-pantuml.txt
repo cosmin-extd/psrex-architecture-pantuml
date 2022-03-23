@@ -12,9 +12,11 @@ LAYOUT_WITH_LEGEND()
 title Component Diagram for PSO
 Component_Ext(EHM, "EHM Service", "Fetch prescriptions")
 Component_Ext(NLLEHM, "NLL EHM Service", "Fetch prescriptions")
+Component_Ext(varaehm, "Vara EHM (FTP) service", "-")
+Component_Ext(integrate, "Integration", "Integration for articles sync. Customers importing articles.")
+
 Person(individual, "Individual buying drugs", "User individual requesting prescription page.")
 Person(individual2, "Pharmacy employee", "Pharmaceut or technician.")
-Container(customers, "Customers", "Customers", "Customers importing articles.")
 
 DEV_MYSQL(dbpso,PSO DB,database)
 DEV_MYSQL(dbpsrexarticles,PSREX Articles DB,database)
@@ -23,15 +25,18 @@ queue "<$rabbitmq>" as rabbit
 queue "<$rabbitmq>" as rabbit2
 
 Container_Boundary(app2, "Pharma Suite") {
-Component(dotnetclient, ".NET Client", "C#", ".NET Client")
-Component(psrexarticles, "PSREX Articles", "Java module", "Stores article information.")
-Component(vara, "VARA Connect", "Java module", "VARA Connect.")
-Component(psrexserver, "PSREX Server", "Java module", "Manages expeditions of prescriptions, dose production and orders from eCommerce (PhOMS).")
-Rel(dotnetclient, psrexarticles, "Uses","SOAP API")
-Rel(individual2, dotnetclient, "Uses","UI Client")
-Rel(psrexarticles, dbpsrexarticles, "Uses","DB")
-Rel(psrexarticles, rabbit2, "Pulls article info","Queue")
-Rel(psrexserver, rabbit2, "Pushes article info","Queue")
+   Component(dotnetclient, ".NET Client", "C#", ".NET Client")
+   Container_Boundary(psrexarticles-container, "PSREX Articles") {
+      Component(psrexarticles, "PSREX Articles Import", "Java module", "Stores article information.")
+      Component(search, "PSREX Articles Search", "Java module", "Stores article information.")
+   }
+   Component(vara, "VARA Connect", "Java module", "VARA Connect.")
+   Component(psrexserver, "PSREX Server", "Java module", "Manages expeditions of prescriptions, dose production and orders from eCommerce (PhOMS).")
+   Rel(dotnetclient, psrexarticles, "Uses","SOAP API")
+   Rel(individual2, dotnetclient, "Uses","UI Client")
+   Rel(psrexarticles, dbpsrexarticles, "Uses","DB")
+   Rel(psrexarticles, rabbit2, "Pulls article info from Queue","C.4")
+   Rel(psrexserver, rabbit2, "Pushes article info to Queue","C.3")
 }
 
 Container_Boundary(app, "PSO Components") {
@@ -39,22 +44,28 @@ Component(asab, "ASAB", "Java dependency", "Prescription and the base article id
 Component(nllehm, "NLL EHM", "Java dependency", "Patients and prescriptions are fetched from EHM.")
 Component(rcl, "PSO", "Java", "PSO")
 Component(rclCPP, "Web UI", "Java", "Web UI.")
-Component(importAPI, "Import API", "Java", "Import API.")
+Component(psoImportAPI, "Import API", "Java", "Import API.")
 Rel(asab, EHM, "Uses","API")
 Rel(nllehm, NLLEHM, "Uses","API")
 Rel(individual, rclCPP, "Uses","API")
 Rel(rcl, dbpso, "Uses","DB")
-Rel(vara, dbpso, "Uses","DB")
 Rel(rcl, rabbit, "Uses","Queue")
 Rel(rcl, asab, "Uses","dependency")
 Rel(rcl, nllehm, "Uses","dependency")
-Rel(customers, importAPI, "Uses","API")
-Rel(customers, vara, "Uses","API")
+Rel(integrate, psoImportAPI, "Uses API","A.1, C.6")
+Rel(integrate, vara, "Uses API","B.1")
+Rel(vara, psoImportAPI, "Uses API","B.2")
+
 
 }
 
-Component(integrate, "Integration", "Java", "Integration for articles sync.")
-Rel(integrate, dbpso, "Uses","DB")
-Rel(integrate, dbpsrexarticles, "Uses","DB")
+'Rel(integrate, dbpso, "Uses","DB")
+'Rel(integrate, dbpsrexarticles, "Uses","DB")
+Rel(varaehm, vara, "Uses API","C.1")
+Rel(vara, psrexserver, "Uses API","C.2")
+Rel(psrexarticles, integrate, "Uses API","C.5")
+
+
+
 
 @enduml
