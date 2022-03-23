@@ -1,4 +1,3 @@
-PSO diagram
 @startuml
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
 ' uncomment the following line and comment the first to use locally
@@ -26,6 +25,7 @@ queue "<$rabbitmq>" as rabbit2
 Container_Boundary(app2, "Pharma Suite") {
 Component(dotnetclient, ".NET Client", "C#", ".NET Client")
 Component(psrexarticles, "PSREX Articles", "Java module", "Stores article information.")
+Component(vara, "VARA Connect", "Java module", "VARA Connect.")
 Component(psrexserver, "PSREX Server", "Java module", "Manages expeditions of prescriptions, dose production and orders from eCommerce (PhOMS).")
 Rel(dotnetclient, psrexarticles, "Uses","SOAP API")
 Rel(individual2, dotnetclient, "Uses","UI Client")
@@ -44,18 +44,17 @@ Rel(asab, EHM, "Uses","API")
 Rel(nllehm, NLLEHM, "Uses","API")
 Rel(individual, rclCPP, "Uses","API")
 Rel(rcl, dbpso, "Uses","DB")
+Rel(vara, dbpso, "Uses","DB")
 Rel(rcl, rabbit, "Uses","Queue")
 Rel(rcl, asab, "Uses","dependency")
 Rel(rcl, nllehm, "Uses","dependency")
 Rel(customers, importAPI, "Uses","API")
+Rel(customers, vara, "Uses","API")
+
 }
 
 Component(integrate, "Integration", "Java", "Integration for articles sync.")
-'Rel(integrate, dbpso, "Uses","DB")
-'Rel(integrate, dbpsrexarticles, "Uses","DB")
+Rel(integrate, dbpso, "Uses","DB")
+Rel(integrate, dbpsrexarticles, "Uses","DB")
 
 @enduml
-Links
-https://www.planttext.com/
-https://confluence.extendaretail.com/pages/viewpage.action?pageId=90511888
-https://plantuml.com/stdlib
