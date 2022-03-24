@@ -10,8 +10,15 @@
 LAYOUT_WITH_LEGEND()
 
 title Component Diagram for PSO
-Component_Ext(EHM, "EHM Service", "Fetch prescriptions")
-Component_Ext(NLLEHM, "NLL EHM Service", "Fetch prescriptions")
+Container_Boundary(ehm-container, "EHM Service") {
+   Component_Ext(EHM_prescriptions_human, "EHM", "Fetch human prescriptions")
+   Component_Ext(EHM_prescriptions_animal, "EHM", "Fetch animal prescriptions")
+   Component_Ext(EHM_fullmarkt, "EHM", "Fetch fullmarkt info")
+   Component_Ext(EHM_patient_info, "EHM", "Fetch patient info")
+   Component_Ext(EHM_HS, "EHM HS", "Fetch Exchange article info")
+}
+
+Component_Ext(NLLEHM, "NLL EHM Service", "Patients and prescriptions are fetched from EHM.")
 Component_Ext(varaehm, "Vara EHM (FTP) service", "-")
 Component_Ext(integrate, "Integration", "Integration for articles sync. Customers importing articles.")
 
@@ -38,21 +45,31 @@ Container_Boundary(app2, "Pharma Suite") {
    Rel(articlesearch, dbpsrexarticles, "Uses","DB")
    Rel(psrexarticles, rabbit2, "Pulls article info from Queue","C.4")
    Rel(psrexserver, rabbit2, "Pushes article info to Queue","C.3")
+   
+   Rel(psrexserver, EHM_prescriptions_human, "-","-")
+   Rel(psrexserver, EHM_patient_info, "-","-")
+
 }
 
 Container_Boundary(app, "PSO Components") {
-Component(asab, "ASAB", "Java dependency", "Prescription and the base article id are fetched from EHM.")
-Component(nllehm, "NLL EHM", "Java dependency", "Patients and prescriptions are fetched from EHM.")
+Component(asab, "ASAB", "Java internal dependency", "ASAB JAR.")
+Component(pharmaEhmFhirClient, "pharma-schemas-ehm", "Java internal dependency", "pharma-schemas-ehm PharmaEhmFhirClient project for NLL.")
+Component(hapinllehm, "HAPI", "Java external dependency", "HAPI FHIR client (NLL)")
 Component(rcl, "PSO", "Java", "PSO")
 Component(rclCPP, "Web UI", "Java", "Web UI.")
 Component(psoImportAPI, "Import API", "Java", "Import API.")
-Rel(asab, EHM, "Uses","API")
-Rel(nllehm, NLLEHM, "Uses","API")
+
+Rel(asab, EHM_prescriptions_human, "orwsService","API")
+Rel(asab, EHM_prescriptions_animal, "rrdwsService","API")
+Rel(asab, EHM_fullmarkt, "folkwsService","API")
+Rel(asab, EHM_patient_info, "axswsService","API")
+Rel(asab, EHM_HS, "varawsService","API")
+
 Rel(individual, rclCPP, "Uses","API")
 Rel(rcl, dbpso, "Uses","DB")
 Rel(rcl, rabbit, "Uses","Queue")
-Rel(rcl, asab, "Uses","dependency")
-Rel(rcl, nllehm, "Uses","dependency")
+'Rel(rcl, asab, "Uses","dependency")
+'Rel(rcl, hapinllehm, "Uses","dependency")
 Rel(integrate, psoImportAPI, "Uses API","A.1, C.6")
 Rel(integrate, vara, "Uses API","B.1")
 Rel(vara, psoImportAPI, "Uses API","B.2")
@@ -66,7 +83,10 @@ Rel(varaehm, vara, "Uses API","C.1")
 Rel(vara, psrexserver, "Is part of PSREX Server Java module","C.2")
 Rel(psrexarticles, integrate, "Uses API","C.5")
 
+Rel(hapinllehm, NLLEHM, "Uses","API")
+Rel(pharmaEhmFhirClient, NLLEHM, "Uses","API")
 
+Rel(psrexserver, NLLEHM, "Uses","API")
 
 
 @enduml
