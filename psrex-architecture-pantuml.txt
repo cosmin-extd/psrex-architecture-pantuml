@@ -11,11 +11,11 @@ LAYOUT_WITH_LEGEND()
 
 title Component Diagram for PSO
 Container_Boundary(ehm-container, "EHM Service") {
-   Component_Ext(EHM_prescriptions_human, "EHM", "Fetch human prescriptions")
-   Component_Ext(EHM_prescriptions_animal, "EHM", "Fetch animal prescriptions")
-   Component_Ext(EHM_fullmarkt, "EHM", "Fetch fullmarkt info")
-   Component_Ext(EHM_patient_info, "EHM", "Fetch patient info")
-   Component_Ext(EHM_HS, "EHM HS", "Fetch Exchange article info")
+   Component_Ext(eHM_prescriptions_human, "EHM", "Fetch human prescriptions")
+   Component_Ext(eHM_prescriptions_animal, "EHM", "Fetch animal prescriptions")
+   Component_Ext(eHM_fullmarkt, "EHM", "Fetch fullmarkt info")
+   Component_Ext(eHM_patient_info, "EHM", "Fetch patient info")
+   Component_Ext(eHM_HS, "EHM HS", "Fetch Exchange article info")
 }
 
 Component_Ext(NLLEHM, "NLL EHM Service", "Patients and prescriptions are fetched from EHM.")
@@ -38,16 +38,28 @@ Container_Boundary(app2, "Pharma Suite") {
       Component(articlesearch, "PSREX Articles Search", "Java module", "Stores article information.")
    }
    Component(vara, "VARA Connect", "Part of PSREX Server Java module", "VARA Connect.")
-   Component(psrexserver, "PSREX Server", "Java module", "Manages expeditions of prescriptions, dose production and orders from eCommerce (PhOMS).")
-   Rel(dotnetclient, psrexarticles, "Uses","SOAP API")
+   Component(psrexarchive, "PSREX Archive", "Spring Boot module", "Archives expeditions & orders.")
+   Component(psrexreservations, "PSREX Reservations", "Spring Boot module", "Manages reservations orders, customer orders & booking requests.")
+   Component(psrexstores, "PSREX Stores", "Spring Boot module", "Manages stores information.")
+   Component(psrexauth, "PSREX Auth", "Spring Boot module", "Manages users.")
+
+   Component(psrexserver, "PSREX Server", "JavaEE/Wildfly module", "Manages expeditions of prescriptions, dose production and orders from eCommerce (PhOMS).")
+   Rel(dotnetclient, articlesearch, "Uses","SOAP API")
    Rel(individual2, dotnetclient, "Uses","UI Client")
    Rel(psrexarticles, dbpsrexarticles, "Uses","DB")
    Rel(articlesearch, dbpsrexarticles, "Uses","DB")
    Rel(psrexarticles, rabbit2, "Pulls article info from Queue","C.4")
    Rel(psrexserver, rabbit2, "Pushes article info to Queue","C.3")
    
-   Rel(psrexserver, EHM_prescriptions_human, "-","-")
-   Rel(psrexserver, EHM_patient_info, "-","-")
+   Rel(psrexserver, eHM_prescriptions_human, "-","-")
+   Rel(psrexserver, eHM_patient_info, "-","-")
+   
+   Rel(psrexserver, psrexreservations, "REST","-")
+   Rel(psrexserver, psrexstores, "REST","-")
+   Rel(psrexserver, psrexarchive, "REST","-")
+   Rel(psrexarticles, psrexauth, "REST","-")
+   Rel(psrexauth, psrexstores, "REST","-")
+   Rel(psrexserver, psrexauth, "REST","-")
 
 }
 
@@ -59,20 +71,20 @@ Component(rcl, "PSO", "Java", "PSO")
 Component(rclCPP, "Web UI", "Java", "Web UI.")
 Component(psoImportAPI, "Import API", "Java", "Import API.")
 
-Rel(asab, EHM_prescriptions_human, "orwsService","API")
-Rel(asab, EHM_prescriptions_animal, "rrdwsService","API")
-Rel(asab, EHM_fullmarkt, "folkwsService","API")
-Rel(asab, EHM_patient_info, "axswsService","API")
-Rel(asab, EHM_HS, "varawsService","API")
+Rel(asab, eHM_prescriptions_human, "orwsService","API")
+Rel(asab, eHM_prescriptions_animal, "rrdwsService","API")
+Rel(asab, eHM_fullmarkt, "folkwsService","API")
+Rel(asab, eHM_patient_info, "axswsService","API")
+Rel(asab, eHM_HS, "varawsService","API")
 
 Rel(individual, rclCPP, "Uses","API")
 Rel(rcl, dbpso, "Uses","DB")
 Rel(rcl, rabbit, "Uses","Queue")
 'Rel(rcl, asab, "Uses","dependency")
 'Rel(rcl, hapinllehm, "Uses","dependency")
-Rel(integrate, psoImportAPI, "Uses API","A.1, C.6")
+Rel(integrate, psoImportAPI, "REST API","A.1, C.6")
 Rel(integrate, vara, "Uses API","B.1")
-Rel(vara, psoImportAPI, "Uses API","B.2")
+'Rel(vara, psoImportAPI, "REST API","B.2")
 
 
 }
@@ -81,7 +93,7 @@ Rel(vara, psoImportAPI, "Uses API","B.2")
 'Rel(integrate, dbpsrexarticles, "Uses","DB")
 Rel(varaehm, vara, "Uses API","C.1")
 Rel(vara, psrexserver, "Is part of PSREX Server Java module","C.2")
-Rel(psrexarticles, integrate, "Uses API","C.5")
+'Rel(articlesearch, integrate, "Uses API","C.5")
 
 Rel(hapinllehm, NLLEHM, "Uses","API")
 Rel(pharmaEhmFhirClient, NLLEHM, "Uses","API")
