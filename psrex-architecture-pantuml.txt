@@ -11,19 +11,26 @@ LAYOUT_WITH_LEGEND()
 
 title Component Diagram for PSO
 Container_Boundary(ehm-container, "EHM Service") {
-   Component_Ext(eHM_prescriptions_human, "EHM", "Fetch human prescriptions")
-   Component_Ext(eHM_prescriptions_animal, "EHM", "Fetch animal prescriptions")
-   Component_Ext(eHM_fullmarkt, "EHM", "Fetch fullmarkt info")
-   Component_Ext(eHM_patient_info, "EHM", "Fetch patient info")
+   Component_Ext(eHM_prescriptions_human, "EHM human", "Fetch human prescriptions")
+   Component_Ext(eHM_prescriptions_animal, "EHM animal", "Fetch animal prescriptions")
+   Component_Ext(eHM_fullmarkt, "EHM fullmarkt", "Fetch fullmarkt info")
+   Component_Ext(eHM_patient_info, "EHM patient info", "Fetch patient info")
    Component_Ext(eHM_HS, "EHM HS", "Fetch Exchange article info")
 }
 
-Component_Ext(NLLEHM, "NLL EHM Service", "Patients and prescriptions are fetched from EHM.")
+Container_Boundary(nll-ehm-container, "NLL EHM Service") {
+   Component_Ext(nllehmpatient, "NLL Patients info", "Patients info fetched from EHM.")
+   Component_Ext(nllehmprescription, "NLL Prescriptions", "Prescriptions fetched from EHM.")
+}
+
 Component_Ext(varaehm, "Vara EHM (FTP) service", "-")
 Component_Ext(integrate, "Integration", "Integration for articles sync. Customers importing articles.")
 
 Person(individual, "Individual buying drugs", "User individual requesting prescription page.")
 Person(individual2, "Pharmacy employee", "Pharmaceut or technician.")
+Component(asab, "ASAB", "Java internal Gradle dependency", "ASAB JAR.")
+Component(pharmaEhmFhirClient, "pharma-schemas-ehm", "Java internal Gradle dependency", "pharma-schemas-ehm PharmaEhmFhirClient project for NLL.")
+Component(hapinllehm, "HAPI", "Java external Gradle dependency", "HAPI FHIR client (NLL)")
 
 DEV_MYSQL(dbpso,PSO DB,database)
 DEV_MYSQL(dbpsrexarticles,PSREX Articles DB,database)
@@ -42,18 +49,14 @@ Container_Boundary(app2, "Pharma Suite") {
    Component(psrexreservations, "PSREX Reservations", "Spring Boot module", "Manages reservations orders, customer orders & booking requests.")
    Component(psrexstores, "PSREX Stores", "Spring Boot module", "Manages stores information.")
    Component(psrexauth, "PSREX Auth", "Spring Boot module", "Manages users.")
-
    Component(psrexserver, "PSREX Server", "JavaEE/Wildfly module", "Manages expeditions of prescriptions, dose production and orders from eCommerce (PhOMS).")
 
 }
 
 Container_Boundary(app, "PSO Components") {
-Component(asab, "ASAB", "Java internal dependency", "ASAB JAR.")
-Component(pharmaEhmFhirClient, "pharma-schemas-ehm", "Java internal dependency", "pharma-schemas-ehm PharmaEhmFhirClient project for NLL.")
-Component(hapinllehm, "HAPI", "Java external dependency", "HAPI FHIR client (NLL)")
-Component(rcl, "PSO", "Java", "PSO")
-Component(rclCPP, "Web UI", "Java", "Web UI.")
-Component(psoImportAPI, "Import API", "Java", "Import API.")
+   Component(pso, "PSO", "Java", "PSO")
+   Component(rclCPP, "Web UI", "Java", "Web UI.")
+   Component(psoImportAPI, "Import API", "Java", "Import API.")
 
 }
 
@@ -73,14 +76,21 @@ Rel(asab, eHM_prescriptions_animal, "rrdwsService","API")
 Rel(asab, eHM_fullmarkt, "folkwsService","API")
 Rel(asab, eHM_patient_info, "axswsService","API")
 Rel(asab, eHM_HS, "varawsService","API")
+Rel(pso, asab, "Uses","Gradle dependency")
+Rel(psrexserver, asab, "Uses","Gradle dependency")
 Rel(psrexserver, eHM_prescriptions_human, "-","-")
 Rel(psrexserver, eHM_patient_info, "-","-")
 
 '(B.2)[without A]Relations with EHM external services - vara & NLL
-Rel(varaehm, vara, "Uses API","C.1")   
-Rel(psrexserver, NLLEHM, "Uses","API")
-Rel(pharmaEhmFhirClient, NLLEHM, "Uses","API")
-Rel(hapinllehm, NLLEHM, "Uses","API")
+'Rel(varaehm, vara, "Uses API","C.1")   
+Rel(pharmaEhmFhirClient, nllehmpatient, "Uses","API")
+Rel(hapinllehm, nllehmpatient, "Uses","API")
+Rel(pharmaEhmFhirClient, nllehmprescription, "Uses","API")
+Rel(hapinllehm, nllehmprescription, "Uses","API")
+Rel(pso, pharmaEhmFhirClient, "Uses","Gradle dependency")
+Rel(pso, hapinllehm, "Uses","Gradle dependency")
+Rel(psrexserver, pharmaEhmFhirClient, "Uses","Gradle dependency")
+Rel(psrexserver, hapinllehm, "Uses","Gradle dependency")
 
 '(C.1)Pharma Suite
 Rel(psrexserver, psrexreservations, "REST","-")
@@ -94,8 +104,8 @@ Rel(psrexserver, psrexauth, "REST","-")
 Rel(dotnetclient, articlesearch, "Uses","SOAP API")
 Rel(individual2, dotnetclient, "Uses","UI Client")
 Rel(individual, rclCPP, "Uses","API")
-Rel(rcl, dbpso, "Uses","DB")
-Rel(rcl, rabbit, "Uses","Queue")
+Rel(pso, dbpso, "Uses","DB")
+Rel(pso, rabbit, "Uses","Queue")
 
 
 
