@@ -44,22 +44,6 @@ Container_Boundary(app2, "Pharma Suite") {
    Component(psrexauth, "PSREX Auth", "Spring Boot module", "Manages users.")
 
    Component(psrexserver, "PSREX Server", "JavaEE/Wildfly module", "Manages expeditions of prescriptions, dose production and orders from eCommerce (PhOMS).")
-   Rel(dotnetclient, articlesearch, "Uses","SOAP API")
-   Rel(individual2, dotnetclient, "Uses","UI Client")
-   Rel(psrexarticles, dbpsrexarticles, "Uses","DB")
-   Rel(articlesearch, dbpsrexarticles, "Uses","DB")
-   Rel(psrexarticles, rabbit2, "Pulls article info from Queue","C.4")
-   Rel(psrexserver, rabbit2, "Pushes article info to Queue","C.3")
-   
-   Rel(psrexserver, eHM_prescriptions_human, "-","-")
-   Rel(psrexserver, eHM_patient_info, "-","-")
-   
-   Rel(psrexserver, psrexreservations, "REST","-")
-   Rel(psrexserver, psrexstores, "REST","-")
-   Rel(psrexserver, psrexarchive, "REST","-")
-   Rel(psrexarticles, psrexauth, "REST","-")
-   Rel(psrexauth, psrexstores, "REST","-")
-   Rel(psrexserver, psrexauth, "REST","-")
 
 }
 
@@ -71,34 +55,48 @@ Component(rcl, "PSO", "Java", "PSO")
 Component(rclCPP, "Web UI", "Java", "Web UI.")
 Component(psoImportAPI, "Import API", "Java", "Import API.")
 
+}
+
+'(A)[without B]Import acticle flows
+Rel(psrexarticles, rabbit2, "Pulls article info from Queue","C.4")
+Rel(psrexserver, rabbit2, "Pushes article info to Queue","C.3")
+Rel(integrate, psoImportAPI, "REST API","A.1, C.6")
+Rel(integrate, vara, "Uses API","B.1")
+Rel(vara, psrexserver, "Is part of PSREX Server Java module","C.2")
+Rel(varaehm, vara, "Uses API","C.1")
+Rel(psrexarticles, dbpsrexarticles, "Uses","DB")
+Rel(articlesearch, dbpsrexarticles, "Uses","DB")
+
+'(B.1)[without A]Relations with EHM external services - prescriptions & patientinfo
 Rel(asab, eHM_prescriptions_human, "orwsService","API")
 Rel(asab, eHM_prescriptions_animal, "rrdwsService","API")
 Rel(asab, eHM_fullmarkt, "folkwsService","API")
 Rel(asab, eHM_patient_info, "axswsService","API")
 Rel(asab, eHM_HS, "varawsService","API")
+Rel(psrexserver, eHM_prescriptions_human, "-","-")
+Rel(psrexserver, eHM_patient_info, "-","-")
 
+'(B.2)[without A]Relations with EHM external services - vara & NLL
+Rel(varaehm, vara, "Uses API","C.1")   
+Rel(psrexserver, NLLEHM, "Uses","API")
+Rel(pharmaEhmFhirClient, NLLEHM, "Uses","API")
+Rel(hapinllehm, NLLEHM, "Uses","API")
+
+'(C.1)Pharma Suite
+Rel(psrexserver, psrexreservations, "REST","-")
+Rel(psrexserver, psrexstores, "REST","-")
+Rel(psrexserver, psrexarchive, "REST","-")
+Rel(psrexarticles, psrexauth, "REST","-")
+Rel(psrexauth, psrexstores, "REST","-")
+Rel(psrexserver, psrexauth, "REST","-")
+
+'(C.2)Others
+Rel(dotnetclient, articlesearch, "Uses","SOAP API")
+Rel(individual2, dotnetclient, "Uses","UI Client")
 Rel(individual, rclCPP, "Uses","API")
 Rel(rcl, dbpso, "Uses","DB")
 Rel(rcl, rabbit, "Uses","Queue")
-'Rel(rcl, asab, "Uses","dependency")
-'Rel(rcl, hapinllehm, "Uses","dependency")
-Rel(integrate, psoImportAPI, "REST API","A.1, C.6")
-Rel(integrate, vara, "Uses API","B.1")
-'Rel(vara, psoImportAPI, "REST API","B.2")
 
-
-}
-
-'Rel(integrate, dbpso, "Uses","DB")
-'Rel(integrate, dbpsrexarticles, "Uses","DB")
-Rel(varaehm, vara, "Uses API","C.1")
-Rel(vara, psrexserver, "Is part of PSREX Server Java module","C.2")
-'Rel(articlesearch, integrate, "Uses API","C.5")
-
-Rel(hapinllehm, NLLEHM, "Uses","API")
-Rel(pharmaEhmFhirClient, NLLEHM, "Uses","API")
-
-Rel(psrexserver, NLLEHM, "Uses","API")
 
 
 @enduml
