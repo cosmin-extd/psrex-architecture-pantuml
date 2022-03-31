@@ -5,7 +5,7 @@ Table PSREX_NODES as M {
   description varchar(255)
   full_name varchar
   type node_type
-  repo_url varchar(255)
+  git_repo_url varchar(255)
 }
 
 Enum node_type {
@@ -23,6 +23,19 @@ Table PSREX_EDGES_relations as R {
   left_node_id int
   right_node_id int
   flow_id int
+  connection_type connection_type_enum
+  destination_url varchar(255) // endpoint or queue
+  endpoint_called_verb varchar(255) // relevant when destination_url is REST endpoint 
+  call_description varchar(255)
+}
+
+Enum connection_type_enum{
+  RESTCall
+  FTPCall
+  QueuePush
+  QueuePull
+  DatabaseInsert
+  DatabaseSelect
 }
 
 Table PSREX_FLOWS as F {
@@ -50,8 +63,32 @@ Table FIX_VERSIONS as F {
   last_commit varchar(255)//where Git tag is placed
 }
 
+Table JIRA_STORIES as J {
+  id int [pk, increment]
+  name varchar(255)
+  jira_url varchar(255)
+  fix_version_id int
+}
+
+Table BUILD_DOT_GRADLES as B {
+  id int [pk, increment]
+  name varchar(255)
+  git_url varchar(255)
+  node_id int
+}
+
+Table INTERNAL_GRADLE_DEPENDENCIES as G { // developed by our teams
+  id int [pk, increment]
+  name varchar(255)
+  git_url varchar(255)
+  nexus_url varchar(255)
+  build_dot_gradle_id int
+}
+
 Ref: R.left_node_id > PSREX_NODES.id
 Ref: R.right_node_id > PSREX_NODES.id  
 Ref: R.flow_id > PSREX_FLOWS.id  
 Ref: C.module_node_Id > PSREX_NODES.id
-Ref: C.fix_version_id > FIX_VERSIONS.id  
+Ref: C.fix_version_id > FIX_VERSIONS.id
+Ref: J.fix_version_id > FIX_VERSIONS.id
+Ref: G.build_dot_gradle_id > BUILD_DOT_GRADLES.id
