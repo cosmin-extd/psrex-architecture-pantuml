@@ -1,0 +1,62 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+' uncomment the following line and comment the first to use locally
+' !include C4_Component.puml
+!include <tupadr3/common>
+!include <tupadr3/devicons/mysql>
+!include <C4/C4_Container>
+!include <logos/rabbitmq>
+
+LAYOUT_WITH_LEGEND()
+
+title Component Diagram for PSO
+
+
+
+Container_Boundary(modules, "Modules") {
+   Component(pso, "PSO", "Java", "PSO")
+   Container_Boundary(psrexarticles-container, "PSREX Articles") {
+      Component(psrexarticles, "PSREX Articles Import", "Java module", "Stores article information.")
+      Component(articlesearch, "PSREX Articles Search", "Java module", "Stores article information.")
+   }
+   'Component(vara, "VARA Connect", "Part of PSREX Server Java module", "VARA Connect.")
+   Component(psrexarchive, "PSREX Archive", "Spring Boot module", "Archives expeditions & orders.")
+   Component(psrexreservations, "PSREX Reservations", "Spring Boot module", "Manages reservations orders, customer orders & booking requests.")
+   Component(psrexstores, "PSREX Stores", "Spring Boot module", "Manages stores information.")
+   Component(psrexauth, "PSREX Auth", "Spring Boot module", "Manages users.")
+   Component(psrexserver, "PSREX Server", "JavaEE/Wildfly module", "Manages expeditions of prescriptions, dose production and orders from eCommerce (PhOMS).")
+
+}
+
+Container_Boundary(am3, "am3") {
+   Component(c1a, "c1", "-")
+   Component(c2a, "c2", "-")
+   Component(c3a, "c3", "-")
+   Component(c4a, "c4", "-")
+   Component(c5a, "c5", "-")
+   Component(c6a, "c6", "-")
+   Component(c7a, "c7", "-")
+   DEV_MYSQL(db1,PSO DB,database)
+   queue "<$rabbitmq>" as rabbit
+}
+
+Container_Boundary(am4, "am4") {
+   Component(c1b, "c1", "-")
+   Component(c2b, "c2", "-")
+   Component(c3b, "c3", "-")
+   Component(c4b, "c4", "-")
+   Component(c5b, "c5", "-")
+   Component(c6b, "c6", "-")
+   Component(c7b, "c7", "-")
+}
+
+Rel(pso, c1a, "REST","-")
+Rel(pso, c1b, "REST","-")
+
+Rel(c1a, db1, "db calls","-")
+Rel(c1b, db1, "db calls","-")
+Rel(c1a, rabbit, "queue push","-")
+Rel(c1b, rabbit, "queue push","-")
+
+Rel(psrexserver, c2a, "REST","-")
+Rel(psrexserver, c2b, "REST","-")
