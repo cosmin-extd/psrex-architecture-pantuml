@@ -1,0 +1,57 @@
+//PSREX Modules
+Table PSREX_NODES as M {
+  id int [pk, increment] // auto-increment
+  name varchar(255)
+  description varchar(255)
+  full_name varchar
+  type node_type
+  repo_url varchar(255)
+}
+
+Enum node_type {
+  Database
+  RabbitMQ
+  dotNET
+  JavaEE
+  SpringBoot
+  Micronaut
+}
+
+Table PSREX_EDGES_relations as R {
+  id int [pk, increment]
+  full_name varchar
+  left_node_id int
+  right_node_id int
+  flow_id int
+}
+
+Table PSREX_FLOWS as F {
+  id int [pk, increment]
+  name varchar(255)
+  description varchar(1255)
+}
+
+Table PSREX_CONTAINERS as C {
+  id int [pk, increment]
+  image_name varchar(255)
+  module_node_Id int
+  fix_version_id int
+  description varchar(1255)
+}
+
+Table FIX_VERSIONS as F {
+  id int [pk, increment]
+  name varchar(255)
+  jira_url varchar(255)
+  gdrive_url varchar(255)
+  start_date varchar(255)
+  end_date varchar(255)
+  description varchar(255)
+  last_commit varchar(255)//where Git tag is placed
+}
+
+Ref: R.left_node_id > PSREX_NODES.id
+Ref: R.right_node_id > PSREX_NODES.id  
+Ref: R.flow_id > PSREX_FLOWS.id  
+Ref: C.module_node_Id > PSREX_NODES.id
+Ref: C.fix_version_id > FIX_VERSIONS.id  

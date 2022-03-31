@@ -1,7 +1,10 @@
 # psrex-architecture-pantuml
-Architecture diagrams for PSREX Java projects in PantUML.
+Architecture diagrams for PSREX Java projects in PantUML & dbdiagram.
 
-Draw the diagram here
+Draw the relational table diagram here
+https://dbdiagram.io/d
+
+Draw the PlantUML diagram here
 https://www.planttext.com/
 
 Library
