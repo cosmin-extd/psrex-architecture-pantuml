@@ -28,6 +28,7 @@ Container_Boundary(modules, "Modules") {
 
 }
 
+Container_Boundary(main, "Main system") {
 Container_Boundary(am3, "am3") {
    Component(c1a, "c1", "-")
    Component(c2a, "c2", "-")
@@ -36,8 +37,11 @@ Container_Boundary(am3, "am3") {
    Component(c5a, "c5", "-")
    Component(c6a, "c6", "-")
    Component(c7a, "c7", "-")
-   DEV_MYSQL(db1,PSO DB,database)
-   queue "<$rabbitmq>" as rabbit
+   Container_Boundary(containerorno1, "Container or no container?") {
+      DEV_MYSQL(db1,PSO DB,database)
+      queue "<$rabbitmq>" as rabbit1
+   }
+   
 }
 
 Container_Boundary(am4, "am4") {
@@ -48,15 +52,35 @@ Container_Boundary(am4, "am4") {
    Component(c5b, "c5", "-")
    Component(c6b, "c6", "-")
    Component(c7b, "c7", "-")
+      Container_Boundary(containerorno2, "Container or no container?") {
+      DEV_MYSQL(db2,PSO DB,database)
+      queue "<$rabbitmq>" as rabbit2
+   }
 }
+
+Container_Boundary(am6, "am6") {
+   Component(c1c, "c1", "-")
+   Component(c2c, "c2", "-")
+      Container_Boundary(containerorno3, "Container or no container?") {
+      DEV_MYSQL(db3,PSO DB,database)
+      queue "<$rabbitmq>" as rabbit3
+   }
+}
+}
+
+queue "<$rabbitmq>" as rabbit
+
+Rel(c1a, db1, "db calls","-")
+Rel(c1b, db2, "db calls","-")
+Rel(c1a, rabbit1, "queue push","-")
+Rel(c1b, rabbit2, "queue push","-")
+Rel(c1c, rabbit3, "queue push","-")
+Rel(rabbit, rabbit1, "virtual host","-")
+Rel(rabbit, rabbit2, "virtual host","-")
+Rel(rabbit, rabbit3, "virtual host","-")
+
 
 Rel(pso, c1a, "REST","-")
 Rel(pso, c1b, "REST","-")
-
-Rel(c1a, db1, "db calls","-")
-Rel(c1b, db1, "db calls","-")
-Rel(c1a, rabbit, "queue push","-")
-Rel(c1b, rabbit, "queue push","-")
-
 Rel(psrexserver, c2a, "REST","-")
 Rel(psrexserver, c2b, "REST","-")
