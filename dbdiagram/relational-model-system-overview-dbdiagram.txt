@@ -41,15 +41,32 @@ Enum connection_type_enum{
 Table PSREX_FLOWS as F {
   id int [pk, increment]
   name varchar(255)
+  type flow_type_enum
   description varchar(1255)
+}
+
+// Client calls: calls from client modules
+// Integrations: calls from outside system
+// Jobs: triggered from inside the system from one point
+Enum flow_type_enum{
+  ClinetCall
+  Integration
+  Job
 }
 
 Table PSREX_CONTAINERS as C {
   id int [pk, increment]
   image_name varchar(255)
-  module_node_Id int
+  server am_server_enum
+  module_node_id int
   fix_version_id int
   description varchar(1255)
+}
+
+Enum am_server_enum{
+  am1
+  am2
+  am3
 }
 
 Table FIX_VERSIONS as F {
@@ -88,7 +105,8 @@ Table INTERNAL_GRADLE_DEPENDENCIES as G { // developed by our teams
 Ref: R.left_node_id > PSREX_NODES.id
 Ref: R.right_node_id > PSREX_NODES.id  
 Ref: R.flow_id > PSREX_FLOWS.id  
-Ref: C.module_node_Id > PSREX_NODES.id
+Ref: C.module_node_id > PSREX_NODES.id
+Ref: B.node_id > PSREX_NODES.id
 Ref: C.fix_version_id > FIX_VERSIONS.id
 Ref: J.fix_version_id > FIX_VERSIONS.id
 Ref: G.build_dot_gradle_id > BUILD_DOT_GRADLES.id
