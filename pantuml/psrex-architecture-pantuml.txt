@@ -87,10 +87,9 @@ Rel(pharmaEhmFhirClient, nllehmpatient, "Uses","API")
 Rel(hapinllehm, nllehmpatient, "Uses","API")
 Rel(pharmaEhmFhirClient, nllehmprescription, "Uses","API")
 Rel(hapinllehm, nllehmprescription, "Uses","API")
-Rel(pso, pharmaEhmFhirClient, "Uses","Gradle dependency")
 Rel(pso, hapinllehm, "Uses","Gradle dependency")
 Rel(psrexserver, pharmaEhmFhirClient, "Uses","Gradle dependency")
-Rel(psrexserver, hapinllehm, "Uses","Gradle dependency")
+'Rel(psrexserver, hapinllehm, "Uses","Gradle dependency")
 
 '(C.1)Pharma Suite
 Rel(psrexserver, psrexreservations, "REST","-")
