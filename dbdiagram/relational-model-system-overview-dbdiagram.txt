@@ -69,44 +69,7 @@ Enum am_server_enum{
   am3
 }
 
-Table FIX_VERSIONS as F {
-  id int [pk, increment]
-  name varchar(255)
-  jira_url varchar(255)
-  gdrive_url varchar(255)
-  start_date varchar(255)
-  end_date varchar(255)
-  description varchar(255)
-  last_commit varchar(255)//where Git tag is placed
-}
-
-Table JIRA_STORIES as J {
-  id int [pk, increment]
-  name varchar(255)
-  jira_url varchar(255)
-  fix_version_id int
-}
-
-Table BUILD_DOT_GRADLES as B {
-  id int [pk, increment]
-  name varchar(255)
-  git_url varchar(255)
-  node_id int
-}
-
-Table INTERNAL_GRADLE_DEPENDENCIES as G { // developed by our teams
-  id int [pk, increment]
-  name varchar(255)
-  git_url varchar(255)
-  nexus_url varchar(255)
-  build_dot_gradle_id int
-}
-
 Ref: R.left_node_id > PSREX_NODES.id
 Ref: R.right_node_id > PSREX_NODES.id  
 Ref: R.flow_id > PSREX_FLOWS.id  
 Ref: C.module_node_id > PSREX_NODES.id
-Ref: B.node_id > PSREX_NODES.id
-Ref: C.fix_version_id > FIX_VERSIONS.id
-Ref: J.fix_version_id > FIX_VERSIONS.id
-Ref: G.build_dot_gradle_id > BUILD_DOT_GRADLES.id
