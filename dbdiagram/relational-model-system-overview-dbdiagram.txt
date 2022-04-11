@@ -15,6 +15,8 @@ Enum node_type {
   JavaEE
   SpringBoot
   Micronaut
+  MavenDependency
+  ExternalService
 }
 
 Table PSREX_EDGES_relations as R {
@@ -24,18 +26,20 @@ Table PSREX_EDGES_relations as R {
   right_node_id int
   flow_id int
   connection_type connection_type_enum
-  destination_url varchar(255) // endpoint or queue
+  destination_url varchar(255) // endpoint, db table or queue
   endpoint_called_verb varchar(255) // relevant when destination_url is REST endpoint 
   call_description varchar(255)
 }
 
 Enum connection_type_enum{
   RESTCall
+  SOAPCall
   FTPCall
   QueuePush
   QueuePull
   DatabaseInsert
   DatabaseSelect
+  MavenDependency
 }
 
 Table PSREX_FLOWS as F {
