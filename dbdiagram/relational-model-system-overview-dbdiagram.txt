@@ -25,10 +25,22 @@ Table PSREX_EDGES_relations as R {
   left_node_id int
   right_node_id int
   flow_id int
+  category_type category_enum
   connection_type connection_type_enum
   destination_url varchar(255) // endpoint, db table or queue
   endpoint_called_verb varchar(255) // relevant when destination_url is REST endpoint 
   call_description varchar(255)
+}
+
+//Because the PlantUML diagram is to big to show all relations we could
+//show one or more categories, but once you choose to show one category
+//you need to show all relations in that category
+Enum category_enum{
+  catA
+  catB1
+  catB2
+  catC1
+  catC2
 }
 
 Enum connection_type_enum{
